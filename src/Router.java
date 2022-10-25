@@ -1,12 +1,11 @@
 import java.util.ArrayList;
-import java.util.Dictionary;
 
 public class Router {
 
     private ArrayList<String> interfaces; //put information coming/going in this
     private ArrayList<ArrayList> routingTable; // each arraylist within has these 3: target ip | interface num | cost metric
     private String routerName;
-    private static ArrayList<String> numOfRouters;
+    private static ArrayList<String> totalRouters;
     private int macAddress;
     private int ip;
 
@@ -15,11 +14,12 @@ public class Router {
             interfaces.add("");
         }
 
-        numOfRouters.add(name);
+        totalRouters.add(name);
         routerName = name;
 
         macAddress = (int)(Math.random() * 999999999999.9); //999 billion
         ip = ipAddress;
+
     }
 
     public Router(int numOfInterfaces, String name) {
@@ -27,7 +27,7 @@ public class Router {
             interfaces.add("");
         }
 
-        numOfRouters.add(name);
+        totalRouters.add(name);
         routerName = name;
 
         macAddress = (int)(Math.random() * 999999999999.9); //999 billion
@@ -53,18 +53,14 @@ public class Router {
             //substring's end index is exclusive
 
             dataPacket = interfaceCopy.get(i);
-            if (dataPacket.contains("-")) {
-                target = dataPacket.substring(0,dataPacket.indexOf("-"));
-            }
-            if (dataPacket.substring(target.length() + 1, target.indexOf("-")).contains("-")) {
-                source = dataPacket.substring(target.length() + 1, target.indexOf("-"));
-            }
-            if (dataPacket.substring(source.length() + 1, source.indexOf("-")).contains("-")) {
-                dataType = dataPacket.substring(source.length() + 1, source.indexOf("-"));
-            }
-            if (dataPacket.substring(dataType.length() + 1).contains("-")) {
-                data = dataPacket.substring(dataType.length() + 1);
-            }
+            if (dataPacket.contains("-")) target = dataPacket.substring(0,dataPacket.indexOf("-"));
+
+            if (dataPacket.substring(target.length() + 1, target.indexOf("-")).contains("-")) source = dataPacket.substring(target.length() + 1, target.indexOf("-"));
+
+            if (dataPacket.substring(source.length() + 1, source.indexOf("-")).contains("-")) dataType = dataPacket.substring(source.length() + 1, source.indexOf("-"));
+
+            if (dataPacket.substring(dataType.length() + 1).contains("-")) data = dataPacket.substring(dataType.length() + 1);
+
 
 
             //below are the if statements that handle the data processing
@@ -216,7 +212,59 @@ public class Router {
                 }
             }
 
+            if (dataType.equals("info")) {
+                //send data packet where it needs to go
+                int targetInterface = -1;
 
+                target.trim();
+                for (ArrayList<String> routingEntry:routingTable) {
+                    if(target.equals(routingEntry.get(0))) {
+                        //there is entry in routing table
+                        if(Integer.valueOf(routingEntry.get(1)) >= 0) {
+                            targetInterface = Integer.valueOf(routingEntry.get(1));
+                        } else {
+                            //we have received this source ip previously
+                            //however the target interface is not set yet
+                            //flood all interfaces with this ip, except for current interface
+                            targetInterface = -2;
+                        }
+                    }
+                }
+
+                if (targetInterface > -1) {
+                    interfaces.set(targetInterface, dataPacket);
+                } else {
+                    //flood all except for the one it came on
+                    for (int j = 0; j < interfaces.size(); j++) {
+                        if (i == j) {
+                            //is same interface it came on
+                        } else {
+                            interfaces.set(j, dataPacket);
+                        }
+                    }
+                }
+
+                //analyze the source and if we don't have it, add it to the routing table with a cost of 99
+
+                boolean add = true;
+
+                dataEntry.add(0,source);
+                dataEntry.add(1,""+i);
+                dataEntry.add(2,""+Integer.MAX_VALUE);
+
+                for (ArrayList ipEntry : routingTable) {
+                    if (ipEntry.get(0).equals(dataEntry.get(0))) {//compare source ip
+                        //we already have an ip logged with this,
+                        add = false;
+                        break;
+                    }
+                }
+
+                if (add) {
+
+                    routingTable.add(dataEntry);
+                }
+            }
         }
 
     }

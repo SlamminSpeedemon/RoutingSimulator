@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Environment {
 
     //generates the nxn matrix in which all the routers, clients, and hosts live
@@ -9,16 +11,33 @@ public class Environment {
 
     private String[][] matrix;
 
-    public Environment(int rows, int cols) {
-        this.rows = rows;
-        this.cols = cols;
-        generateMatrix();
-    }
+    private ArrayList<Router> routerList;
+    private ArrayList<ArrayList> connections;//spot 0's arraylist correlates with router 0's interface connections
+    //for above, each arraylist within is a string that has the router name
+
 
     public Environment(int n) {
         rows = n;
         cols = n;
         generateMatrix();
+    }
+
+    public void setUpEnvironment(int numOfRouters) {
+        //auto generate connections between routers
+        routerList = new ArrayList<>();
+
+        for (int i = 0; i < numOfRouters; i++) {
+            routerList.add(new Router(4, "Router "+i,i));
+        }
+
+
+
+
+
+    }
+
+    public void setUpEnvironment(int numOfRouters, int topology) {
+        //todo --> add different topologies
     }
 
     private void generateMatrix() {
@@ -51,5 +70,9 @@ public class Environment {
         return matrix;
     }
 
-
+    public Environment(int rows, int cols) {
+        this.rows = rows;
+        this.cols = cols;
+        generateMatrix();
+    }
 }
