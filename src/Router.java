@@ -7,7 +7,7 @@ public class Router {
     private String routerName;
     private static ArrayList<String> totalRouters;
     private int macAddress;
-    private int ip;
+    private int ipAddress;
 
     public Router(int numOfInterfaces, String name, int ipAddress) {
         for (int i = 0; i < numOfInterfaces; i++) {
@@ -18,7 +18,7 @@ public class Router {
         routerName = name;
 
         macAddress = (int)(Math.random() * 999999999999.9); //999 billion
-        ip = ipAddress;
+        this.ipAddress = ipAddress;
 
     }
 
@@ -61,7 +61,11 @@ public class Router {
 
             if (dataPacket.substring(dataType.length() + 1).contains("-")) data = dataPacket.substring(dataType.length() + 1);
 
-
+            //see if data has at its destination
+            if (Integer.valueOf(target) == ipAddress) {
+                //packet has reached destination
+                System.out.println("Destination has Received packet for "+target+"\n\tPacket contents: "+dataPacket);
+            }
 
             //below are the if statements that handle the data processing
             //todo maybe want to convert them to separate functions and call those instead
@@ -83,7 +87,7 @@ public class Router {
                 }
 
                 //send data back
-                interfaces.set(i, source+"-"+ip+"-"+"infoReturn"+returnDataString);
+                interfaces.set(i, source+"-"+ ipAddress +"-"+"infoReturn"+returnDataString);
 
 
 
