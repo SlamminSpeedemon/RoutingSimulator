@@ -5,11 +5,13 @@ public class Router {
     private ArrayList<String> interfaces; //put information coming/going in this
     private ArrayList<ArrayList> routingTable; // each arraylist within has these 3: target ip | interface num | cost metric
     private String routerName;
-    private static ArrayList<String> totalRouters;
+    private static ArrayList<String> totalRouters = new ArrayList<>();
     private int macAddress;
     private int ipAddress;
 
     public Router(int numOfInterfaces, String name, int ipAddress) {
+        interfaces = new ArrayList<>();
+
         for (int i = 0; i < numOfInterfaces; i++) {
             interfaces.add("");
         }
@@ -285,5 +287,9 @@ public class Router {
         for (int i = 0; i < interfaces.size(); i++) {
             interfaces.set(i,"");
         }
+    }
+
+    public String getRouterName() {
+        return routerName;
     }
 }
