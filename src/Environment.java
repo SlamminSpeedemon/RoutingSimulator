@@ -17,6 +17,12 @@ public class Environment {
     //example Router 0 would be stored as 0, the 0 corresponds to first router stored in the routerList
     private int maxInterfaceInRouter;
 
+    public ArrayList<Router> getRouterList() {
+        return routerList;
+    }
+    public ArrayList<ArrayList<Integer>> getConnections() {
+        return connections;
+    }
 
     public Environment(int numOfRouters, int interfacesPerRouter) throws InterruptedException {
         //rows = n;
@@ -81,7 +87,7 @@ public class Environment {
 
         //System.out.println("Connections has been made to be " + connections.size() + " long");
         for (int i = 0; i < connections.size(); i++) {
-            System.out.println("\tRouter "+i+" will have " + connections.get(i).size()+" conections");
+            System.out.println("\tRouter "+i+" will have " + connections.get(i).size()+" connections");
         }
 
         //connect connections between routers
@@ -161,7 +167,7 @@ public class Environment {
                     }
 
                     if (chosenRouter < 0) {
-                        System.out.println("\tCouldn't choose a router with 2+ connections " + chosenRouter + "\n\t\tMaking a random router have an additional connection");
+                        System.out.println("\tCouldn't choose a router with 2+ connections: " + chosenRouter + "\n\t\tMaking a random router have an additional connection");
 
                         if (routersToConnect.size() > 0) {
                             chosenRouter = routersToConnect.get((int) (Math.random() * routersToConnect.size()));
@@ -170,7 +176,7 @@ public class Environment {
                                 connections.get(chosenRouter).add(Integer.MIN_VALUE);
                             }
 
-                            System.out.println("Added connection to router: " + chosenRouter);
+                            System.out.println("\t\tAdded connection to router: " + chosenRouter);
                         } else {
                             System.out.println("\tNo routers left to connect... skipping");
                             break;
@@ -212,6 +218,7 @@ public class Environment {
 
         //todo make clients and hosts
     }
+
 
     public void processTick() {
         //forwards data between connections then goes through each router and calls the process function

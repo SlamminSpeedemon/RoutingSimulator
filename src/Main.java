@@ -4,9 +4,9 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         //System.out.println("Environment is being instantiated");
-        Environment environment = new Environment(10,3);
+        Environment environment = new Environment(20,3);
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             environment.printConnection(i);
         }
 
@@ -17,6 +17,9 @@ public class Main {
 
 
         //environment.navigateEnvironment();
+
+        UI ui = new UI(environment.getRouterList(), environment.getConnections());
+        ui.startComponents();
 
 
     }
