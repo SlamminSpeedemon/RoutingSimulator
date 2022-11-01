@@ -58,8 +58,12 @@ public class Environment {
                 System.out.println("What router would you like to see? Max is " + (connections.size()-1));
                 printConnection(getInput.nextInt());
                 break;
+            case 3:
+
+                break;
             default:
-                System.out.println("Invalid input");
+                System.out.println("Processing tick...");
+                processTick();
         }
     }
     public void setUpEnvironment() throws InterruptedException {
@@ -126,7 +130,7 @@ public class Environment {
             System.out.println("\t\t\t\t"+i);
         }
 
-        while (routersToConnect.size() > 0 && runsCounter < 999) {
+        while (routersToConnect.size() > 1 && runsCounter < 200) {
 
             runsCounter++;
 
@@ -223,17 +227,51 @@ public class Environment {
     public void processTick() {
         //forwards data between connections then goes through each router and calls the process function
         ArrayList<ArrayList<String>> interfaceHolder = new ArrayList<>();
-        ArrayList<String> interfaceHolderEntry;
 
-        for (int i = 0; i < routerList.size(); i++) {
-            interfaceHolderEntry = routerList.get(i).getInterfaces();
-            for (int j = 0; j < connections.get(i).size(); j++) {
-                //todo implement
+        //set up interface holder, so we can add entries to it
+        for (ArrayList<Integer> t : connections) {
+            ArrayList<String> temp = new ArrayList<>();
+            for (int j : t) {
+                temp.add("");
             }
-
-
+            interfaceHolder.add(temp);
         }
 
+        ArrayList<String> interfaceHolderEntry;
+
+        //first place all the data in the correct location in interface holder
+        for (int i = 0; i < routerList.size(); i++) { //i is the router
+            //get interfaces from the router
+
+            interfaceHolderEntry = routerList.get(i).getInterfaces();
+            for (int j = 0; j < connections.get(i).size(); j++) { //j is the interface of the router
+                //process each individual interface within router
+
+                int targetRouter = connections.get(i).get(j);
+                //we know the target router, now find what interface of the target router connects to this
+                int targetRouterInterface = -1;
+
+                if (targetRouter < 0) {
+                    continue;
+                }
+
+                for (int z = 0; z < connections.get(targetRouter).size(); z++) { //z is the interface of the target router
+                    if (connections.get(targetRouter).get(z) == i) {
+                        targetRouterInterface = z;
+                    }
+                }
+
+                //set the target interface to the data in the current interface
+                interfaceHolder.get(targetRouter).set(targetRouterInterface, interfaceHolderEntry.get(j));
+            }
+
+        }
+        //interface holder has the new data in the correct interfaces and routers
+
+        //set interfaces on each router
+        for (int i = 0; i < interfaceHolder.size(); i++) {
+            routerList.get(i).setInterfaces(interfaceHolder.get(i));
+        }
 
         for (Router i : routerList) {
             i.processIncomingData();
@@ -257,35 +295,5 @@ public class Environment {
     public void setUpEnvironment(int numOfRouters, int topology) {
         //todo --> add different topologies
     }
-
-//    private void generateMatrix() {
-//        matrix = new String[rows][cols];
-//        for (int i = 0; i < rows; i++) {
-//            for (int j = 0; j < cols; j++) {
-//                matrix[i][j] = "_";
-//            }
-//        }
-//    }
-//
-//    public void printMatrix() {
-//        for (int i = 0; i < rows; i++) {
-//            for (int j = 0; j < cols; j++) {
-//                System.out.print(matrix[i][j] + "\t");
-//            }
-//            System.out.println();
-//        }
-//    }
-//
-//    public void setMatrix(int row, int col, String input) {
-//        matrix[row][col] = input;
-//    }
-//
-//    public String getMatrixVal(int row, int col) {
-//        return matrix[row][col];
-//    }
-//
-//    public String[][] getMatrix() {
-//        return matrix;
-//    }
 
 }

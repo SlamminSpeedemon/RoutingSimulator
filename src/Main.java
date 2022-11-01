@@ -21,6 +21,10 @@ public class Main {
         UI ui = new UI(environment.getRouterList(), environment.getConnections());
         ui.startComponents();
 
+        while(true) {
+            environment.navigateEnvironment();
+        }
+
 
     }
 }

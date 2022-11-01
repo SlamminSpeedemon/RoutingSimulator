@@ -12,15 +12,17 @@ public class UI extends JComponent {
     private ArrayList<Line> lines = new ArrayList<>();
     private ArrayList<Router> routerList;
     private ArrayList<ArrayList<Integer>> connections;
-    private ArrayList<ArrayList<Integer>> routerPositions;
+    private ArrayList<ArrayList<Integer>> routerConnectPts;
 
     private ArrayList<JLabel> routerJLabels;
 
     private JFrame window;
 
     public void paint(Graphics g) {
-
         for (Line l : lines) {
+            Graphics2D graphics2D = (Graphics2D) g;
+            graphics2D.setStroke(new BasicStroke(2));
+
             g.setColor(l.color);
             g.drawLine(l.x1, l.y1, l.x2, l.y2);
         }
@@ -31,7 +33,7 @@ public class UI extends JComponent {
         connections = listOfConnections;
 
         routerJLabels = new ArrayList<>();
-        routerPositions = new ArrayList<>();
+        routerConnectPts = new ArrayList<>();
 
         // creating object of JFrame(Window popup)
         window = new JFrame();
@@ -76,41 +78,16 @@ public class UI extends JComponent {
             routerJLabels.get(i).setBounds(x,y,70,30);
             ArrayList<Integer> temp = new ArrayList<>();
 
-            //find what point to anchor lines from
-            double slope = (x + 0.0)/(y + 0.0);
+            //find what point to anchor lines from using step size and router number i
             int xCorrect = 0;
             int yCorrect = 0;
-            if (slope < 1 && slope > -1 ) {
-                if (x > 0) {
-                    //right side
-                    xCorrect = -1 * routerJLabels.get(i).getWidth();
-                } else {
-                    //left side
-                    //TODO finish this
 
-                }
-
-            }else if (y == 0) { //special case
-                //is either top or bottom
-                if (x > 0) {
-                    //top
-
-                } else {
-                    //bottom
-
-                }
-
-            } else {
-                if (y > 0) {
-                    //top
-                } else {
-                    //bottom
-                }
-            }
+            //TODO correct the lines so that they don't criss cross over routers
+            //read above to get idea for implementation
 
             temp.add(x + xCorrect);
             temp.add(y + yCorrect);
-            routerPositions.add(temp);
+            routerConnectPts.add(temp);
         }
 
         // setting canvas for draw
@@ -118,11 +95,44 @@ public class UI extends JComponent {
 
         // set visibility
         window.setVisible(true);
+
+        generateLines();
     }
 
     public void generateLines() {
-        for (int i = 0; i < connections.size(); i++) {
+        ArrayList<ArrayList<Integer>> doneConnections = new ArrayList<>(); //keeps track of already done connections, so it is not done twice
+        //each slot in main list is router, the array list of ints within it represents the connections already done
 
+        for (ArrayList<Integer> lol : connections) {
+            doneConnections.add(new ArrayList<>());
+        }
+
+
+        for (int i = 0; i < connections.size(); i++) {//i is the current router
+            ArrayList<Integer> currentConnects = connections.get(i);
+
+            for (int j = 0; j < currentConnects.size(); j++) {
+                int targetRouter = currentConnects.get(j);
+                boolean add = true;
+
+                if (targetRouter < -50) {
+                    continue;
+                }
+
+                //check if line connection already done
+                for (int k = 0; k < doneConnections.get(targetRouter).size(); k++) {
+                    if (doneConnections.get(targetRouter).get(k) == i) {
+                        add = false;
+                    }
+                }
+
+                if (add) {
+                    //make the line connection
+                    Line line = new Line(routerConnectPts.get(i).get(0), routerConnectPts.get(i).get(1), routerConnectPts.get(targetRouter).get(0), routerConnectPts.get(targetRouter).get(1));
+                    lines.add(line);
+                }
+
+            }
         }
     }
 
