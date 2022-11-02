@@ -4,10 +4,10 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         //System.out.println("Environment is being instantiated");
-        Environment environment = new Environment(20,3);
+        Environment environment = new Environment(4,4);
 
         for (int i = 0; i < 20; i++) {
-            environment.printConnection(i);
+            //environment.printConnection(i);
         }
 
         //System.out.println("The above completed");

@@ -9,8 +9,12 @@ public class Router {
     private int macAddress;
     private int ipAddress;
 
+    private boolean recievedData;
+    private boolean sentData;
+
     public Router(int numOfInterfaces, String name, int ipAddress) {
         interfaces = new ArrayList<>();
+        routingTable = new ArrayList<>();
 
         for (int i = 0; i < numOfInterfaces; i++) {
             interfaces.add("");
@@ -55,6 +59,10 @@ public class Router {
             //substring's end index is exclusive
 
             dataPacket = interfaceCopy.get(i);
+            if (dataPacket.length() < 1) {
+                continue;
+            }
+
             if (dataPacket.contains("-")) target = dataPacket.substring(0,dataPacket.indexOf("-"));
 
             if (dataPacket.substring(target.length() + 1, target.indexOf("-")).contains("-")) source = dataPacket.substring(target.length() + 1, target.indexOf("-"));
@@ -90,7 +98,6 @@ public class Router {
 
                 //send data back
                 interfaces.set(i, source+"-"+ ipAddress +"-"+"infoReturn"+returnDataString);
-
 
 
                 //check to see if we already have incoming routing data
@@ -136,7 +143,7 @@ public class Router {
                         //we already have an ip logged with this,
                         add = false;
                         //see if the new route is shorter
-                        if(Integer.valueOf((String)ipEntry.get(2)) > Integer.valueOf((String)dataEntry.get(2))) {
+                        if(Integer.parseInt((String)ipEntry.get(2)) > Integer.parseInt((String)dataEntry.get(2))) {
                             //new cost is less than previous one
                             add = true;
                             routingTable.remove(ipEntry); //hopefully this works?
@@ -276,7 +283,11 @@ public class Router {
     }
 
     public void setInterfaces(ArrayList<String> incomingData) {
+        for (String i : interfaces) {
+            interfaces.remove(0);
+        }
         interfaces = incomingData;
+        System.out.println("Router " + routerName + " has received data " + incomingData);
     }
 
     public ArrayList<String> getInterfaces() {
@@ -291,5 +302,9 @@ public class Router {
 
     public String getRouterName() {
         return routerName;
+    }
+
+    public ArrayList<ArrayList> getRoutingTable() {
+        return routingTable;
     }
 }

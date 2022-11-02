@@ -44,9 +44,10 @@ public class Environment {
     }
 
     public void navigateEnvironment() {
-        Scanner getInput = new Scanner(System.in);
-        System.out.println("What do you want to do?\n\t1-view all router connections\n\t2-view router's connection");
-        int decision = getInput.nextInt();
+        Scanner getIntInput = new Scanner(System.in);
+        Scanner getTextInput = new Scanner(System.in);
+        System.out.println("What do you want to do?\n\t1-view all router connections\n\t2-view router's connection\n\t3-Set packet\n\t4-view router's info");
+        int decision = getIntInput.nextInt();
 
         switch (decision) {
             case 1:
@@ -56,10 +57,42 @@ public class Environment {
                 break;
             case 2:
                 System.out.println("What router would you like to see? Max is " + (connections.size()-1));
-                printConnection(getInput.nextInt());
+                printConnection(getIntInput.nextInt());
                 break;
             case 3:
+                System.out.println("Enter router number to send data to: ");
+                int routerNum = getIntInput.nextInt();
+                System.out.println("Interface to set in (-1 means all): ");
+                int targetInterface = getIntInput.nextInt();
+                System.out.println("\t\tPacket format is target - source - dataType - info/data\nEnter packet: ");
+                String packet = getTextInput.nextLine();
+                ArrayList<String> interfaces = routerList.get(routerNum).getInterfaces();
+                if (targetInterface < 0) {
+                    //flood all interfaces
+                    for (int i = 0; i < interfaces.size(); i++) {
+                        interfaces.set(i,packet);
+                    }
+                } else if (targetInterface < maxInterfaceInRouter) {
+                    interfaces.set(targetInterface, packet);
+                }
+                System.out.println("Sent, would you like to process data (1 = true): ");
+                if (getIntInput.nextInt() == 1) {
+                    routerList.get(routerNum).processIncomingData();
+                }
+                break;
+            case 4:
+                System.out.println("Enter router number to see interfaces and routing table: ");
+                int routerNumToDisplay = getIntInput.nextInt();
+                if (routerNumToDisplay < routerList.size()) {
+                    Router router = routerList.get(routerNumToDisplay);
+                    ArrayList<String> routerInterfaces = router.getInterfaces();
+                    for (int i = 0; i < routerInterfaces.size(); i++) {
+                        System.out.println("\t\tPort "+i+" contains:\t"+routerInterfaces.get(i));
+                    }
+                    System.out.println("Routing table below");
+                    System.out.println(router.getRoutingTable());
 
+                } else System.out.println("Router number to high!");
                 break;
             default:
                 System.out.println("Processing tick...");
@@ -130,7 +163,7 @@ public class Environment {
             System.out.println("\t\t\t\t"+i);
         }
 
-        while (routersToConnect.size() > 1 && runsCounter < 200) {
+        while (routersToConnect.size() > 0 && runsCounter < 200) {
 
             runsCounter++;
 
@@ -198,6 +231,11 @@ public class Environment {
                     routersToConnect.remove(randomNum);
 
                     System.out.println("\tChose a random router " + chosenRouter);
+                }
+
+                if (currentRouter == chosenRouter) {
+                    System.out.println("\t\tChosen router is = current router : "+chosenRouter+" = "+currentRouter);
+                    continue;
                 }
 
                 //in chosen router connect the 1st interface to this interface
